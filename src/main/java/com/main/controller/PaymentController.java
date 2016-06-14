@@ -20,14 +20,19 @@ import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.Payment;
 import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.APIContext;
+import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
+import com.paypal.base.rest.PayPalResource;
 
 @RestController
 @RequestMapping(value="/payment")
 
 public class PaymentController{ 
+	String accessToken="";
+	
 	@RequestMapping(method = RequestMethod.POST, produces = "application/JSON")
-	public Payment getString() throws PayPalRESTException{
+	public Payment getString(){
+		System.out.println("started");
 /*		InputStream is = PaymentController.class.getResourceAsStream("/sdk_config.properties");
 
 		Map<String, String> map = new HashMap<String, String>();
@@ -40,6 +45,29 @@ public class PaymentController{
 				System.out.println("Access tokn : " + accessToken + "fsdf " +clientID + clientSecret);
 		Payment.get(accessToken, paymentID);
 		System.out.println("after getting : " + accessToken + ":" + paymentID);*/
+		 
+		InputStream is = PaymentController.class
+				.getResourceAsStream("/sdk_config.properties");
+		try {
+			PayPalResource.initConfig(is);
+			System.out.println("initiialization done");
+		} catch (PayPalRESTException e) {
+			System.out.println("Paypal Rest Exception : " + e.getMessage());
+		}
+		
+		Map<String, String > map = new HashMap<String, String>();
+		map.put("mode", "sandbox");
+//		AYDNebhrsuqiUKPU_ab-tCvGGVkzaxw2y4bIJFIl4rMuCWZsPLQqEsBelM3kjlaB0_Nu-UX-LJQw8l0Z
+//		ENgjkFRgy1yGhal0aobwdF8kLNglkDaDeDItLN-lgQJZV4W1FpNQ27g3FC6TNd1swtroXAdVT390O4C8
+		String clientID = "AYSq3RDGsmBLJE-otTkBtM-jBRd1TCQwFf9RGfwddNXWz0uFU9ztymylOhRS";
+		String clientSecret="EGnHDxD_qRPdaLdZz8iCr8N7_MzF-YHPTkjs6NKYQvQSBngp4PTTVWkPZRbL";
+		
+		try {
+			accessToken = new OAuthTokenCredential(clientID, clientSecret,map).getAccessToken();
+		} catch (PayPalRESTException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Cannot make the OAuthentication :" + e.getMessage());
+		}
 		
 		Payment payment = createPayment();
 		
@@ -48,6 +76,7 @@ public class PaymentController{
 	
 	public Payment createPayment(){
 
+		System.out.println("ASFDASDF");
 		// ###Address
 		// Base Address object used as shipping or billing
 		// address in a payment. [Optional]
@@ -141,19 +170,20 @@ public class PaymentController{
 			// It is not mandatory to generate Access Token on a per call basis.
 			// Typically the access token can be generated once and
 			// reused within the expiry window
-			String accessToken = GenerateAccessToken.getAccessToken();
+//			String accessToken = GenerateAccessToken.getAccessToken();
 
-			String realAccessToken = "A101.kPIsO7eGXhg420XIjnZmPboCS27CeDF6TZjVfGR31f6ja1IotK3e6U-E_k9MwOO5.VDuLz4HOp7U6THjlS1sNwB1pDhu";
+//			String realAccessToken = "A101.kPIsO7eGXhg420XIjnZmPboCS27CeDF6TZjVfGR31f6ja1IotK3e6U-E_k9MwOO5.VDuLz4HOp7U6THjlS1sNwB1pDhu";
 			
 			// ### Api Context
 			// Pass in a `ApiContext` object to authenticate
 			// the call and to send a unique request id
 			// (that ensures idempotency). The SDK generates
 			// a request id if you do not pass one explicitly.
-			APIContext apiContext = new APIContext(realAccessToken);
+			APIContext apiContext = new APIContext(accessToken);
 			// Use this variant if you want to pass in a request id
 			// that is meaningful in your application, ideally
 			// a order id.
+			
 			/*
 			 * String requestId = Long.toString(System.nanoTime(); APIContext
 			 * apiContext = new APIContext(accessToken, requestId ));
@@ -167,7 +197,7 @@ public class PaymentController{
 			System.out.println("Created payment with id = " + createdPayment.getId()
 			+ " and status = " + createdPayment.getState());
 		} catch (PayPalRESTException e) {
-			System.out.println("Cannot make the payment : " + e.getMessage());
+			System.out.println("Cannot make the payment from here: " + e.getMessage());
 		}
 		return createdPayment;
 	}

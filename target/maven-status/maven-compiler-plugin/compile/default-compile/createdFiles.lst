@@ -1,4 +1,4 @@
 com/main/ServletInitializer.class
-com/main/utils/GenerateAccessToken.class
 com/main/PaypalRestClientApplication.class
+com/main/utils/GenerateAccessToken.class
 com/main/controller/PaymentController.class
