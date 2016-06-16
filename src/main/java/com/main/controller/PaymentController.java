@@ -1,8 +1,6 @@
 package com.main.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +35,25 @@ public class PaymentController{
 		}
 	}
 	
-	@RequestMapping(value="/simplePayment",method = RequestMethod.POST, produces = "application/JSON")
-	public Payment makePayment(){
-		
-		System.out.println("Its refreshing");
-		
-		Payment payment = paymentService.createCreditCardPayment(getAccessToken());
-		
-		return payment;
+	/**Accept payment from paypal
+	 * @return -> payment object
+	 */
+	@RequestMapping(value="/paypal",method = RequestMethod.POST, produces = "application/JSON")
+	public Payment makePaypal(){
+		return paymentService.createSimplePaypalPayment(getAccessToken());
+	}
+	
+	/**Accept payment from creditcard
+	 * @return -> payment object
+	 */
+	@RequestMapping(value="/creditcard", method=RequestMethod.POST, produces="application/JSON")
+	public Payment makeCreditCardPayment(){
+		return paymentService.createCreditCardPayment(getAccessToken());
+	}
+	
+	@RequestMapping(value="/success")
+	public String success(){
+		return "Success";
 	}
 	
 	/**Getting accesstoken by providing valid clientId and secret

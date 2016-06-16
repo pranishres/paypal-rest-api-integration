@@ -12,6 +12,7 @@ import com.paypal.api.payments.Details;
 import com.paypal.api.payments.FundingInstrument;
 import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.Payment;
+import com.paypal.api.payments.PaymentExecution;
 import com.paypal.api.payments.RedirectUrls;
 import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.APIContext;
@@ -114,19 +115,21 @@ public class PaymentServiceImpl implements PaymentService {
 		CreditCard creditCard = new CreditCard();
 		creditCard.setBillingAddress(billingAddress);
 		creditCard.setCvv2(111);
-		creditCard.setExpireMonth(11);
-		creditCard.setExpireYear(2018);
-		creditCard.setFirstName("Joe");
-		creditCard.setLastName("Shopper");
-		creditCard.setNumber("4032031805974176");
-		creditCard.setType("VISA");
+		creditCard.setExpireMonth(07);
+		creditCard.setExpireYear(2021);
+		creditCard.setFirstName("Pranish");
+		creditCard.setLastName("Shrestha Credit Card");
+		creditCard.setNumber("4032035145786042");
+//		5308170003013017 mastercard
+		creditCard.setType("visa");
 
+		
 		/*
 		 * ###Details Let's you specify details of a payment amount.
 		 */
 		Details details = new Details();
 		details.setShipping("1");
-		details.setSubtotal("5");
+		details.setSubtotal("1");
 		details.setTax("1");
 
 		/*
@@ -135,7 +138,7 @@ public class PaymentServiceImpl implements PaymentService {
 		Amount amount = new Amount();
 		amount.setCurrency("USD");
 		/* Total must be equal to sum of shipping, tax and subtotal. */
-		amount.setTotal("7");
+		amount.setTotal("3");
 		amount.setDetails(details);
 
 		/*
@@ -204,7 +207,6 @@ public class PaymentServiceImpl implements PaymentService {
 			 * AccessToken The return object contains the status;
 			 */
 			createdPayment = payment.create(apiContext);
-
 			System.out.println("Created payment with id = " + createdPayment.getId() + " and status = "
 					+ createdPayment.getState());
 		} catch (PayPalRESTException e) {
