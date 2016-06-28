@@ -5,11 +5,14 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.main.service.PaymentService;
+import com.main.dto.CreditCardDTO;
+import com.main.persistence.service.PaymentService;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
@@ -47,13 +50,20 @@ public class PaymentController{
 	 * @return -> payment object
 	 */
 	@RequestMapping(value="/creditcard", method=RequestMethod.POST, produces="application/JSON")
-	public Payment makeCreditCardPayment(){
-		return paymentService.createCreditCardPayment(getAccessToken());
+	public Payment makeCreditCardPayment(@RequestParam("paymentType") String paymentType){
+		return paymentService.createCreditCardPayment(getAccessToken(), paymentType);
 	}
 	
 	@RequestMapping(value="/success")
 	public String success(){
 		return "Success";
+	}
+	
+	/** Storing credit card
+	 */
+	@RequestMapping(value="/storeCard", method=RequestMethod.POST)
+	public void storeCreditCard(@RequestBody CreditCardDTO creditCardDto){
+		paymentService.storeCreditCard(getAccessToken(), creditCardDto);
 	}
 	
 	/**Getting accesstoken by providing valid clientId and secret
@@ -69,7 +79,7 @@ public class PaymentController{
 		if(accessToken.equals("") || accessToken==""){
 		try {
 			accessToken = new OAuthTokenCredential(clientID, clientSecret,map).getAccessToken();
-			System.out.println("Yeapee authentication is done : " + accessToken);
+			System.out.println("Access Token : " + accessToken);
 			return accessToken;
 		} catch (PayPalRESTException e) {
 			System.out.println("Cannot make the OAuthentication :" + e.getMessage());
