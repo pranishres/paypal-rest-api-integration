@@ -11,20 +11,26 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="transaction")
-public class Transaction {
+public class Transactions {
 	@Id
 	@Column(name="id")
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
 	
 	@Column(name="customer_id")
 	private int customerId;
 	
 	@Column(name="customer_credit_card_id")
-	private int creditCardId;
+	private String creditCardId;
 	
-	@Column(name="pay_type")
-	private String payType;
+	@Column(name="payment_id")
+	private String paymentId;
+	
+	@Column(name="intent")
+	private String intent;
+	
+	@Column(name="pay_method")
+	private String paymentMethod;
 	
 	@Column(name="amount_currency")
 	private String amountCurrency;
@@ -60,20 +66,37 @@ public class Transaction {
 		this.customerId = customerId;
 	}
 
-	public int getCreditCardId() {
+	public String getCreditCardId() {
 		return creditCardId;
 	}
 
-	public void setCreditCardId(int creditCardId) {
+	public void setCreditCardId(String creditCardId) {
 		this.creditCardId = creditCardId;
 	}
 
-	public String getPayType() {
-		return payType;
+	
+	public String getPaymentId() {
+		return paymentId;
 	}
 
-	public void setPayType(String payType) {
-		this.payType = payType;
+	public void setPaymentId(String paymentId) {
+		this.paymentId = paymentId;
+	}
+
+	public String getIntent() {
+		return intent;
+	}
+
+	public void setIntent(String intent) {
+		this.intent = intent;
+	}
+
+	public String getPaymentMethod() {
+		return paymentMethod;
+	}
+
+	public void setPaymentMethod(String paymentMethod) {
+		this.paymentMethod = paymentMethod;
 	}
 
 	public String getAmountCurrency() {

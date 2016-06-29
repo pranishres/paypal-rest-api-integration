@@ -1,7 +1,5 @@
 package com.main.controller;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.main.dto.CreditCardDTO;
+import com.main.persistence.entity.CustomerCreditCard;
 import com.main.persistence.service.PaymentService;
+import com.main.util.SessionContext;
 import com.paypal.api.payments.Payment;
-import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
 
 @RestController
@@ -31,7 +29,7 @@ public class PaymentController{
 	@RequestMapping(value="/{paymentId}",method=RequestMethod.GET, produces="application/JSON")
 	public Payment getPayment(@PathVariable("paymentId") String paymentId){
 		try {
-			return Payment.get(getAccessToken(), paymentId);
+			return Payment.get(SessionContext.getAccessToken(), paymentId);
 		} catch (PayPalRESTException e) {
 			e.printStackTrace();
 			return null;
@@ -43,48 +41,23 @@ public class PaymentController{
 	 */
 	@RequestMapping(value="/paypal",method = RequestMethod.POST, produces = "application/JSON")
 	public Payment makePaypal(){
-		return paymentService.createSimplePaypalPayment(getAccessToken());
+		return paymentService.createSimplePaypalPayment(SessionContext.getAccessToken());
 	}
 	
 	/**Accept payment from creditcard
 	 * @return -> payment object
 	 */
-	@RequestMapping(value="/creditcard", method=RequestMethod.POST, produces="application/JSON")
-	public Payment makeCreditCardPayment(@RequestParam("paymentType") String paymentType){
-		return paymentService.createCreditCardPayment(getAccessToken(), paymentType);
+	@RequestMapping(value="/creditcard"+"/{id}", method=RequestMethod.POST, produces="application/JSON")
+	public Payment makeCreditCardPayment(@RequestParam("paymentType") String paymentType, @PathVariable("id") int id){
+		return paymentService.createCreditCardPayment(SessionContext.getAccessToken(), paymentType, id);
 	}
 	
-	@RequestMapping(value="/success")
-	public String success(){
-		return "Success";
-	}
-	
+
 	/** Storing credit card
 	 */
 	@RequestMapping(value="/storeCard", method=RequestMethod.POST)
-	public void storeCreditCard(@RequestBody CreditCardDTO creditCardDto){
-		paymentService.storeCreditCard(getAccessToken(), creditCardDto);
+	public void storeCreditCard(@RequestBody CustomerCreditCard creditCardDto){
+		paymentService.storeCreditCard(SessionContext.getAccessToken(), creditCardDto);
 	}
 	
-	/**Getting accesstoken by providing valid clientId and secret
-	 * @return
-	 */
-	private String getAccessToken(){
-		String accessToken = "";
-		Map<String, String > map = new HashMap<String, String>();
-		map.put("mode", "sandbox");
-
-		String clientID = "AYDNebhrsuqiUKPU_ab-tCvGGVkzaxw2y4bIJFIl4rMuCWZsPLQqEsBelM3kjlaB0_Nu-UX-LJQw8l0Z";
-		String clientSecret="ENgjkFRgy1yGhal0aobwdF8kLNglkDaDeDItLN-lgQJZV4W1FpNQ27g3FC6TNd1swtroXAdVT390O4C8";
-		if(accessToken.equals("") || accessToken==""){
-		try {
-			accessToken = new OAuthTokenCredential(clientID, clientSecret,map).getAccessToken();
-			System.out.println("Access Token : " + accessToken);
-			return accessToken;
-		} catch (PayPalRESTException e) {
-			System.out.println("Cannot make the OAuthentication :" + e.getMessage());
-			return accessToken;
-		}
-		}else return accessToken;
-	}
 }

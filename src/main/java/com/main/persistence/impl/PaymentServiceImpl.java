@@ -1,13 +1,17 @@
 package com.main.persistence.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.main.dto.CreditCardDTO;
+import com.main.persistence.entity.CustomerCreditCard;
+import com.main.persistence.repo.CustomerCreditCardRepo;
+import com.main.persistence.repo.TransactionRepo;
 import com.main.persistence.service.PaymentService;
 import com.paypal.api.payments.Address;
 import com.paypal.api.payments.Amount;
@@ -21,12 +25,18 @@ import com.paypal.api.payments.RedirectUrls;
 import com.paypal.api.payments.Transaction;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
+import com.main.persistence.entity.Transactions;
 
 @Service /*
 			 * Creates a bean of this class as a service. Required when @Autowired
 			 * of the service interface is done
 			 */
 public class PaymentServiceImpl implements PaymentService {
+	@Autowired
+	CustomerCreditCardRepo customerCreditCardRepo;
+	
+	@Autowired
+	TransactionRepo transactionRepo;
 
 	String MY_CARD_NO = "4032035145786042";
 	String MY_MASTERCARD = "5308170003013017";
@@ -102,7 +112,7 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public Payment createCreditCardPayment(String accessToken, String paymentType) {
+	public Payment createCreditCardPayment(String accessToken, String paymentType, int customerId) {
 
 		CreditCard creditCard = getCreditCard();
 
@@ -124,9 +134,7 @@ public class PaymentServiceImpl implements PaymentService {
 		APIContext apiContext = new APIContext(accessToken);
 		apiContext.setConfigurationMap(sdkConfig);
 
-
-
-		/*
+		/**
 		 * ###FundingInstrument A resource representing a Payeer's funding
 		 * instrument. Use a Payer ID (A unique identifier of the payer
 		 * generated and provided by the facilitator. This is required when
@@ -136,10 +144,14 @@ public class PaymentServiceImpl implements PaymentService {
 		FundingInstrument fundingInstrument = new FundingInstrument();
 
 		if (paymentType == "storedCard" || paymentType.equals("storedCard")) {
-			/* Now the credit card token will be used to make the payment */
+			
+			/** Now the credit card token will be used to make the payment */
 			System.out.println("Stored");
+			
+			String creditCardId = customerCreditCardRepo.findOneByCustomerIdAndDefaultCard(customerId, 1).getCardId();
+			
 			CreditCardToken creditCardToken = new CreditCardToken();
-			creditCardToken.setCreditCardId("CARD-350555972B835351DK5ZAWYQ");
+			creditCardToken.setCreditCardId(creditCardId);
 			System.out.println("Credit card id : " + creditCardToken);
 			fundingInstrument.setCreditCardToken(creditCardToken);
 
@@ -188,8 +200,7 @@ public class PaymentServiceImpl implements PaymentService {
 			createdPayment = payment.create(apiContext);
 			System.out.println("Created payment with id = " + createdPayment.getId() + " and status = "
 					+ createdPayment.getState());
-			
-			saveDetails();
+			saveDetails(customerId, createdPayment);
 			
 		} catch (PayPalRESTException e) {
 			System.out.println("Cannot make the payment from here: " + e.getMessage());
@@ -199,25 +210,50 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public void storeCreditCard(String accesstoken, CreditCardDTO creditCardDTO) {
-		/**
-		 * CREATE credit card api context here
-		 */
-		
-		CreditCard creditCardd = new CreditCard();
-		creditCardd.setExpireMonth(creditCardDTO.getExpiryMonth());
-		creditCardd.setExpireYear(creditCardDTO.getExpiryYear());
-		creditCardd.setFirstName(creditCardDTO.getFirstName());
-		creditCardd.setLastName(creditCardDTO.getLastName());
-		creditCardd.setNumber(creditCardDTO.getCardNumber());
-		creditCardd.setType(creditCardDTO.getCardType());
+	public CustomerCreditCard storeCreditCard(String accessToken, CustomerCreditCard creditCardDTO) {
+		Map<String, String> sdkConfig = new HashMap<String, String>();
+		sdkConfig.put("mode", "sandbox");
 
-		CreditCardToken creditCardToken = new CreditCardToken();
-		creditCardToken.setCreditCardId(creditCardd.getId());
+		APIContext apiContext = new APIContext(accessToken);
+		apiContext.setConfigurationMap(sdkConfig);
 		
-		System.out.println("Credit card obhect : " + creditCardd );
-		System.out.println("Credit Card ID : " + creditCardToken.getCreditCardId());
-		System.out.println("Credit card ID as it is : " + creditCardd.getId());
+		
+		CreditCard creditCard = new CreditCard();
+		creditCard.setExpireMonth(creditCardDTO.getExpiryMonth());
+		creditCard.setExpireYear(creditCardDTO.getExpiryYear());
+		creditCard.setFirstName(creditCardDTO.getFirstName());
+		creditCard.setLastName(creditCardDTO.getLastName());
+		creditCard.setNumber(creditCardDTO.getCardNumber());
+		creditCard.setType(creditCardDTO.getCardType());
+
+		CreditCard createdCreditCard = new CreditCard();
+		
+		try{
+			createdCreditCard = creditCard.create(apiContext);
+		}catch(Exception e){
+			
+		}
+		
+		creditCardDTO.setCardId(createdCreditCard.getId());
+		
+		System.out.println("Credit card object : " + creditCard);
+		System.out.println("Credit card ID as it is : " + createdCreditCard.getId());
+		
+		saveCreditCardDetails(creditCardDTO);
+		
+		return creditCardDTO;
+	}
+
+	/** Storing credit card details to the database
+	 * 
+	 * @param creditCardDTO
+	 */
+	private void saveCreditCardDetails(CustomerCreditCard creditCardDTO) {
+		try{
+		customerCreditCardRepo.save(creditCardDTO);
+		}catch(Exception e){
+			System.out.println("Could not save credit card details : " + e.getMessage());
+		}
 	}
 
 	private Address getBillingAddress() {
@@ -295,7 +331,26 @@ public class PaymentServiceImpl implements PaymentService {
 
 	}
 	
-	private void saveDetails(){
+	private void saveDetails(int customerId ,Payment createdPayment){
+		Payer payer = createdPayment.getPayer();
+		FundingInstrument fundingInstrument = payer.getFundingInstruments().get(0);
+		Transaction transaction = createdPayment.getTransactions().get(0);
+		Amount amount = transaction.getAmount();
+		Details details = amount.getDetails();
 		
+		Transactions transactions = new Transactions();
+		transactions.setCustomerId(customerId);
+		transactions.setCreditCardId(fundingInstrument.getCreditCardToken().getCreditCardId());
+		transactions.setPaymentId(createdPayment.getId());
+		transactions.setIntent(createdPayment.getIntent());
+		transactions.setPaymentMethod(payer.getPaymentMethod());
+		transactions.setAmountCurrency(amount.getCurrency());
+		transactions.setDetailsShipping(Float.parseFloat(details.getShipping()));
+		transactions.setDetailsSubTotal(Float.parseFloat(details.getSubtotal()));
+		transactions.setDetailsTax(Float.parseFloat(details.getTax()));
+		transactions.setDate(new Date());
+		transactions.setTransactionDescription(transaction.getDescription());
+		
+		transactionRepo.save(transactions);
 	}
 }
