@@ -27,7 +27,7 @@ public class PaymentController{
 	 * @return -> Payment object
 	 */
 	@RequestMapping(value="/{paymentId}",method=RequestMethod.GET, produces="application/JSON")
-	public Payment getPayment(@PathVariable("paymentId") String paymentId){
+	public Payment getById(@PathVariable("paymentId") String paymentId){
 		try {
 			return Payment.get(SessionContext.getAccessToken(), paymentId);
 		} catch (PayPalRESTException e) {
@@ -40,16 +40,16 @@ public class PaymentController{
 	 * @return -> payment object
 	 */
 	@RequestMapping(value="/paypal",method = RequestMethod.POST, produces = "application/JSON")
-	public Payment makePaypal(){
+	public Payment makePaypalPayment(){
 		return paymentService.createSimplePaypalPayment(SessionContext.getAccessToken());
 	}
 	
 	/**Accept payment from creditcard
 	 * @return -> payment object
 	 */
-	@RequestMapping(value="/creditcard"+"/{id}", method=RequestMethod.POST, produces="application/JSON")
-	public Payment makeCreditCardPayment(@RequestParam("paymentType") String paymentType, @PathVariable("id") int id){
-		return paymentService.createCreditCardPayment(SessionContext.getAccessToken(), paymentType, id);
+	@RequestMapping(value="/creditcard", method=RequestMethod.POST, produces="application/JSON")
+	public Payment makeCreditCardPayment(@RequestParam("paymentType") String paymentType){
+		return paymentService.createCreditCardPayment(SessionContext.getAccessToken(), paymentType);
 	}
 	
 

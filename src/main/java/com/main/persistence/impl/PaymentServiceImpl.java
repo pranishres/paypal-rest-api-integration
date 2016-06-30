@@ -13,6 +13,7 @@ import com.main.persistence.entity.CustomerCreditCard;
 import com.main.persistence.repo.CustomerCreditCardRepo;
 import com.main.persistence.repo.TransactionRepo;
 import com.main.persistence.service.PaymentService;
+import com.main.util.SessionContext;
 import com.paypal.api.payments.Address;
 import com.paypal.api.payments.Amount;
 import com.paypal.api.payments.CreditCard;
@@ -47,39 +48,20 @@ public class PaymentServiceImpl implements PaymentService {
 		redirectUrls.setReturnUrl("http://localhost:8080/PaypalRestClient/payment/success");
 		redirectUrls.setCancelUrl("http://localhost:8080/PaypalRestClient/payment/failure");
 
-		/* Let's you specify a payment amount. */
-		Amount amount = new Amount();
+/*		Amount amount = new Amount();
 		amount.setCurrency("USD");
-
-		/* Total must be equal to sum of shipping, tax and subtotal. */
+		 Total must be equal to sum of shipping, tax and subtotal. 
 		amount.setTotal("10");
 
-		/*
-		 * A transaction defines the contract of a payment - what is the payment
-		 * for and who is fulfilling it. Transaction is created with a `Payee`
-		 * and `Amount` types
-		 */
 		Transaction transaction = new Transaction();
-		transaction.setAmount(amount);
+		transaction.setAmount(amount);*/
 
-		/*
-		 * The Payment creation API requires a list of Transaction; add the
-		 * created `Transaction` to a List
-		 */
 		List<Transaction> transactions = new ArrayList<Transaction>();
-		transactions.add(transaction);
+		transactions.add(getTransaction());
 
-		/*
-		 * A resource representing a Payer that funds a payment Use the List of
-		 * `FundingInstrument` and the Payment Method as 'credit_card'
-		 */
 		Payer payer = new Payer();
 		payer.setPaymentMethod("paypal");
 
-		/*
-		 * A Payment Resource; create one using the above types and intent as
-		 * 'sale'
-		 */
 		Payment payment = new Payment();
 		payment.setIntent("sale");
 		payment.setRedirectUrls(redirectUrls);
@@ -88,19 +70,7 @@ public class PaymentServiceImpl implements PaymentService {
 		Payment createdPayment = null;
 
 		try {
-
-			/*
-			 * Pass in a `ApiContext` object to authenticate the call and to
-			 * send a unique request id (that ensures idempotency). The SDK
-			 * generates a request id if you do not pass one explicitly.
-			 */
-			APIContext apiContext = new APIContext(accessToken);
-
-			/*
-			 * Create a payment by posting to the APIService using a valid
-			 * AccessToken The return object contains the status;
-			 */
-			createdPayment = payment.create(apiContext);
+			createdPayment = payment.create(SessionContext.getAPIContext());
 
 			System.out.println("Created payment with id = " + createdPayment.getId() + " and status = "
 					+ createdPayment.getState());
@@ -112,27 +82,13 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public Payment createCreditCardPayment(String accessToken, String paymentType, int customerId) {
-
+	public Payment createCreditCardPayment(String accessToken, String paymentType) {
+		int customerId= SessionContext.getCustomerId();
+		
 		CreditCard creditCard = getCreditCard();
 
-		/**
-		 * The Payment creation API requires a list of Transaction; add the
-		 * created `Transaction` to a List
-		 */
 		List<Transaction> transactions = new ArrayList<Transaction>();
 		transactions.add(getTransaction());
-
-		Map<String, String> sdkConfig = new HashMap<String, String>();
-		sdkConfig.put("mode", "sandbox");
-
-		/**
-		 * Pass in a `ApiContext` object to authenticate the call and to send a
-		 * unique request id (that ensures idempotency). The SDK generates a
-		 * request id if you do not pass one explicitly.
-		 */
-		APIContext apiContext = new APIContext(accessToken);
-		apiContext.setConfigurationMap(sdkConfig);
 
 		/**
 		 * ###FundingInstrument A resource representing a Payeer's funding
@@ -158,7 +114,7 @@ public class PaymentServiceImpl implements PaymentService {
 		} else if (paymentType == "direct" || paymentType.equals("direct")) {
 			CreditCard createdCreditCard = null;
 			try {
-				createdCreditCard = creditCard.create(apiContext);
+				createdCreditCard = creditCard.create(SessionContext.getAPIContext());
 			} catch (PayPalRESTException e1) {
 				e1.printStackTrace();
 			}
@@ -175,17 +131,9 @@ public class PaymentServiceImpl implements PaymentService {
 			System.out.println("Please provide a valid payment Type");
 		}
 
-		/*
-		 * The Payment creation API requires a list of FundingInstrument; add
-		 * the created `FundingInstrument` to a List
-		 */
 		List<FundingInstrument> fundingInstrumentList = new ArrayList<FundingInstrument>();
 		fundingInstrumentList.add(fundingInstrument);
 
-		/*
-		 * ###Payment A Payment Resource; create one using the above types and
-		 * intent as 'sale'
-		 */
 		Payment payment = new Payment();
 		payment.setIntent("sale");
 		payment.setPayer(getPayer(fundingInstrumentList));
@@ -193,11 +141,7 @@ public class PaymentServiceImpl implements PaymentService {
 		Payment createdPayment = null;
 
 		try {
-			/*
-			 * Create a payment by posting to the APIService using a valid
-			 * AccessToken The return object contains the status;
-			 */
-			createdPayment = payment.create(apiContext);
+			createdPayment = payment.create(SessionContext.getAPIContext());
 			System.out.println("Created payment with id = " + createdPayment.getId() + " and status = "
 					+ createdPayment.getState());
 			saveDetails(customerId, createdPayment);
@@ -233,7 +177,7 @@ public class PaymentServiceImpl implements PaymentService {
 		}catch(Exception e){
 			
 		}
-		
+		creditCardDTO.setCustomerId(SessionContext.getCustomerId());
 		creditCardDTO.setCardId(createdCreditCard.getId());
 		
 		System.out.println("Credit card object : " + creditCard);
@@ -256,11 +200,10 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 	}
 
+	/**Billing address is required just for card payment method
+	 * @return
+	 */
 	private Address getBillingAddress() {
-
-		/*
-		 * Base Address object used as shipping or billing address in a payment.
-		 */
 		Address billingAddress = new Address();
 		billingAddress.setCity("Johnstown");
 		billingAddress.setCountryCode("US");
@@ -306,11 +249,6 @@ public class PaymentServiceImpl implements PaymentService {
 
 	private Transaction getTransaction() {
 
-		/**
-		 * ###Transaction A transaction defines the contract of a payment - what
-		 * is the payment for and who is fulfilling it. Transaction is created
-		 * with a `Payee` and `Amount` types
-		 */
 		Transaction transaction = new Transaction();
 		transaction.setAmount(getAmount());
 		transaction.setDescription("This is the payment transaction description.");
@@ -319,10 +257,6 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	private Payer getPayer(List<FundingInstrument> fundingInstrumentList) {
-		/*
-		 * ###Payer A resource representing a Payer that funds a payment Use the
-		 * List of `FundingInstrument` and the Payment Method - as 'credit_card'
-		 */
 		Payer payer = new Payer();
 		payer.setFundingInstruments(fundingInstrumentList);
 		payer.setPaymentMethod("credit_card");
@@ -339,8 +273,13 @@ public class PaymentServiceImpl implements PaymentService {
 		Details details = amount.getDetails();
 		
 		Transactions transactions = new Transactions();
+		
+		if(fundingInstrument.getCreditCardToken() != null)
+		{
+			transactions.setCreditCardId(fundingInstrument.getCreditCardToken().getCreditCardId());
+		}
+		
 		transactions.setCustomerId(customerId);
-		transactions.setCreditCardId(fundingInstrument.getCreditCardToken().getCreditCardId());
 		transactions.setPaymentId(createdPayment.getId());
 		transactions.setIntent(createdPayment.getIntent());
 		transactions.setPaymentMethod(payer.getPaymentMethod());

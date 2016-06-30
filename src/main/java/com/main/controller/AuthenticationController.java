@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.main.util.SessionContext;
 
 @RestController
-@RequestMapping(name="/{id}")
 public class AuthenticationController {
 
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value="/{id}",method = RequestMethod.POST)
 	public String saveCustomerID(@PathVariable ("id") int id){
 		SessionContext.setCustomerId(id);
+		System.out.println("SessionContext.setCustomerId(id) : " + SessionContext.getCustomerId());
 		
 		return "Customer ID : " + SessionContext.getCustomerId();
 	}

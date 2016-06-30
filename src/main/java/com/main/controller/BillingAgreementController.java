@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.main.dto.BillingAgreementDTO;
@@ -27,7 +28,7 @@ import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
 
 @RestController
-@RequestMapping("/billingAgreements")
+@RequestMapping("/billings/agreements")
 public class BillingAgreementController {
 	
 	@Autowired
@@ -37,51 +38,34 @@ public class BillingAgreementController {
 	public String getDate() {
 		Date today = new Date();
 		Date tomorrow = new Date(today.getTime() + (1000 * 60 * 60 * 24));
-
-		return tomorrow.toString();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		
+		return sdf.format(tomorrow);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/{planId}")
 	public Agreement createAgreement(@PathVariable("planId") String planId, @RequestBody BillingAgreementDTO billingAgreementDTO)
 			throws PayPalRESTException, MalformedURLException, UnsupportedEncodingException {
 		
-		Agreement createdAgreement2 = billingAgreementService.createAgreement(planId, billingAgreementDTO);
+		Agreement createdAgreement = billingAgreementService.createAgreement(planId, billingAgreementDTO);
 
-		return createdAgreement2;
+		return createdAgreement;
 
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/execute/{token}")
 	public Agreement executeAgreement(@PathVariable("token") String token)
 			throws PayPalRESTException, MalformedURLException, UnsupportedEncodingException {
-/*		String clientId = "AYnFTc-GiQj7woam2EdCMZvasffdjMbK8X7Wa0X1F5LxFxBriAQrlljnXXMIdDWXshV4xkqP7pDsxZEF";
-		String clientSecret = "ECe3xZ-S3BRqxtnPsNN0qK6hCA_a9vyOZDSG-iIBMtNjwu7xlQwMc8zy-9u0kryY9xR9OQc-hxz7ednZ";
-		HashMap<String, String> sdkConfig = new HashMap<String, String>();
-		sdkConfig.put("mode", "sandbox"); // when you're live, change "sandbox"
 
-		String accessToken = new OAuthTokenCredential(clientId, clientSecret, sdkConfig).getAccessToken();
-		APIContext apiContext = new APIContext(Sessio);
-		apiContext.setConfigurationMap(sdkConfig);*/
-
-		Agreement executedAgreement = Agreement.execute(SessionContext.getAPIContext(), token);
-
-		return executedAgreement;
+		return billingAgreementService.executeAgreement(token);
 
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/agreementDetail/{token}")
-	public Agreement agreementDetail(@PathVariable("token") String token)
+	@RequestMapping(method = RequestMethod.GET, value = "/agreementDetail/{agreementId}")
+	public Agreement getById(@PathVariable("agreementId") String token)
 			throws PayPalRESTException, MalformedURLException, UnsupportedEncodingException {
-		String clientId = "AYnFTc-GiQj7woam2EdCMZvasffdjMbK8X7Wa0X1F5LxFxBriAQrlljnXXMIdDWXshV4xkqP7pDsxZEF";
-		String clientSecret = "ECe3xZ-S3BRqxtnPsNN0qK6hCA_a9vyOZDSG-iIBMtNjwu7xlQwMc8zy-9u0kryY9xR9OQc-hxz7ednZ";
-		HashMap<String, String> sdkConfig = new HashMap<String, String>();
-		sdkConfig.put("mode", "sandbox"); // when you're live, change "sandbox"
-
-		String accessToken = new OAuthTokenCredential(clientId, clientSecret, sdkConfig).getAccessToken();
-		APIContext apiContext = new APIContext(accessToken);
-		apiContext.setConfigurationMap(sdkConfig);
-
-		Agreement agreement = Agreement.get(apiContext, token);
+		Agreement agreement = Agreement.get(SessionContext.getAPIContext(), token);
 
 		return agreement;
 

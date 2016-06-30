@@ -5,4 +5,6 @@ import com.paypal.api.payments.Agreement;
 
 public interface BillingAgreementService {
 	public Agreement createAgreement(String planId, BillingAgreementDTO billingAgreementDTO);
+	
+	public Agreement executeAgreement(String token);
 }
