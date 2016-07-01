@@ -2,9 +2,9 @@ package com.main.dto;
 
 public class BillingAgreementDTO {
 
-	private String aggrementName;
-	private String aggrementDescription;
-	private String aggrementStartDate;
+	private String agreementName;
+	private String agreementDescription;
+	private String agreementStartDate;
 	private String payerEmail;
 	private String payerFirstName;
 	private String payerLastName;
@@ -17,23 +17,24 @@ public class BillingAgreementDTO {
 	private String shippingPhone;
 	private String shippingLine1;
 	
-	public String getAggrementName() {
-		return aggrementName;
+
+	public String getAgreementName() {
+		return agreementName;
 	}
-	public void setAggrementName(String aggrementName) {
-		this.aggrementName = aggrementName;
+	public void setAgreementName(String agreementName) {
+		this.agreementName = agreementName;
 	}
-	public String getAggrementDescription() {
-		return aggrementDescription;
+	public String getAgreementDescription() {
+		return agreementDescription;
 	}
-	public void setAggrementDescription(String aggrementDescription) {
-		this.aggrementDescription = aggrementDescription;
+	public void setAgreementDescription(String agreementDescription) {
+		this.agreementDescription = agreementDescription;
 	}
-	public String getAggrementStartDate() {
-		return aggrementStartDate;
+	public String getAgreementStartDate() {
+		return agreementStartDate;
 	}
-	public void setAggrementStartDate(String aggrementStartDate) {
-		this.aggrementStartDate = aggrementStartDate;
+	public void setAgreementStartDate(String agreementStartDate) {
+		this.agreementStartDate = agreementStartDate;
 	}
 	public String getPayerEmail() {
 		return payerEmail;

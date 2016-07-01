@@ -22,12 +22,16 @@ public class SessionContext {
 		String clientID = "AYDNebhrsuqiUKPU_ab-tCvGGVkzaxw2y4bIJFIl4rMuCWZsPLQqEsBelM3kjlaB0_Nu-UX-LJQw8l0Z";
 		String clientSecret="ENgjkFRgy1yGhal0aobwdF8kLNglkDaDeDItLN-lgQJZV4W1FpNQ27g3FC6TNd1swtroXAdVT390O4C8";
 		
+		/*Braintree*/
+//		String clientID = "AUs7Rbr2uJhjBwD0hJPWwCpQLiNurOZxjA3ZRzErAXZUgc-Gh51U3RDDb3mJ6VAxt7pmrSuB9Wy4xgz1";
+//		String clientSecret="EFeaXkAmZaXEsNoNC4m03UcRhdm3BGeeo-Mt2X_6phg9LHc_B95xuq7QVHjceo9vxRZvuZkGmUypoRIG";
+		
 		/*Ek-payment*/
 //		String clientID = "Adsrt7W6gH9ohkVi4T-wZ2laykL6rAGouJG__QtwBbfqHMKtfd3r--fsYG1eUNhcP3snqTUEZbRFISga";
 //		String clientSecret="EBsdqxhtk_Lfz2dzFl-HW_puAs0EDx5zQy0tGt7LvJNXzMcOazZ8pcTbLAsvE64Ds4AY5XKlij-Jcvn0";
 		if(accessToken.equals("") || accessToken==""){
 		try {
-			accessToken = new OAuthTokenCredential(clientID, clientSecret,map).getAccessToken();
+			accessToken = new OAuthTokenCredential(clientID, clientSecret,getSDKConfig()).getAccessToken();
 			System.out.println("Access Token : " + accessToken);
 			return accessToken;
 		} catch (PayPalRESTException e) {
@@ -45,8 +49,11 @@ public class SessionContext {
 	}
 	
 	public static APIContext getAPIContext(){
+		Map<String, String> sdkConfig = new HashMap<String, String>();
+		sdkConfig.put("mode", "sandbox");
+		
 		APIContext apiContext = new APIContext(getAccessToken());
-		apiContext.setConfigurationMap(getSDKConfig());
+		apiContext.setConfigurationMap(sdkConfig);
 		return apiContext;
 	}
 	

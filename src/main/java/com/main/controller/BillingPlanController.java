@@ -37,7 +37,7 @@ public class BillingPlanController {
 	 * @param planId
 	 * @return Updated plan
 	 */
-	@RequestMapping(method = RequestMethod.PATCH, value = "/activate/{planId}")
+	@RequestMapping(method = RequestMethod.PATCH, value = "/{planId}")
 	public Plan activateBillingPlan(@PathVariable("planId") String planId)
 			throws PayPalRESTException, MalformedURLException, UnsupportedEncodingException {
 

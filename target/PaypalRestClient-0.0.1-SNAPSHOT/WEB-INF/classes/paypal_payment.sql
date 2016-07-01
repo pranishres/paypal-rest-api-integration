@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jun 28, 2016 at 02:21 PM
+-- Generation Time: Jun 30, 2016 at 02:16 PM
 -- Server version: 10.1.13-MariaDB
 -- PHP Version: 7.0.6
 
@@ -46,6 +46,44 @@ INSERT INTO `billing_address` (`id`, `customer_id`, `city`, `country_code`, `add
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `billing_agreement`
+--
+
+CREATE TABLE `billing_agreement` (
+  `id` int(11) NOT NULL,
+  `billing_agreement_id` varchar(50) DEFAULT NULL,
+  `customer_id` int(11) NOT NULL,
+  `plan_id` int(11) NOT NULL,
+  `token` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `billing_agreement`
+--
+
+INSERT INTO `billing_agreement` (`id`, `billing_agreement_id`, `customer_id`, `plan_id`, `token`) VALUES
+(7, 'I-F6EWARCG262U', 1, 14, 'EC-90596489527673301'),
+(8, 'I-RUTB7DARATSE', 1, 17, 'EC-6SF75878R63312345'),
+(9, NULL, 1, 17, 'EC-1GN11625HT538825G'),
+(10, NULL, 1, 17, 'EC-10L502190J799852W'),
+(11, NULL, 1, 18, 'EC-7UW639461K392561E'),
+(12, NULL, 1, 14, 'EC-7WH49116FR0442056');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `billing_plan_agreement`
+--
+
+CREATE TABLE `billing_plan_agreement` (
+  `id` int(11) NOT NULL,
+  `billing_agreement_id` varchar(50) NOT NULL,
+  `plan_id` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `customer`
 --
 
@@ -73,15 +111,44 @@ CREATE TABLE `customer_credit_card` (
   `customer_id` int(11) NOT NULL,
   `card_number` varchar(30) NOT NULL,
   `card_id` varchar(30) NOT NULL,
-  `payer_id` varchar(30) NOT NULL,
+  `payer_id` varchar(30) DEFAULT NULL,
   `first_name` varchar(30) NOT NULL,
   `last_name` varchar(30) NOT NULL,
   `expiry_month` int(11) NOT NULL,
   `expiry_year` int(11) NOT NULL,
-  `cvv2` int(11) NOT NULL,
   `card_type` varchar(30) NOT NULL,
   `default_card` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `customer_credit_card`
+--
+
+INSERT INTO `customer_credit_card` (`id`, `customer_id`, `card_number`, `card_id`, `payer_id`, `first_name`, `last_name`, `expiry_month`, `expiry_year`, `card_type`, `default_card`) VALUES
+(2, 1, '4032035145786042', 'CARD-7A4946358R445564AK5ZURZQ', NULL, 'pranish card', 'shrestha_card', 1, 2017, 'visa', 0),
+(3, 1, '4032035145786042', 'CARD-3MV33182SC787214PK52LYRQ', NULL, 'pranish card', 'shrestha_card', 1, 2017, 'visa', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `plan`
+--
+
+CREATE TABLE `plan` (
+  `id` int(11) NOT NULL,
+  `plan_id` varchar(50) NOT NULL,
+  `state` varchar(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `plan`
+--
+
+INSERT INTO `plan` (`id`, `plan_id`, `state`) VALUES
+(1, 'P-1EG51987FL216900WTO7EDOQ', 'CREATED'),
+(14, 'P-6LD82494T2510952ATK3WSCI', 'ACTIVE'),
+(17, 'P-8X867568GV8640429UALDD6A', 'ACTIVE'),
+(18, 'P-8PU70099AP988423VTQL2RZY', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -92,8 +159,10 @@ CREATE TABLE `customer_credit_card` (
 CREATE TABLE `transaction` (
   `id` int(11) NOT NULL,
   `customer_id` int(11) NOT NULL,
-  `customer_credit_card_id` int(11) NOT NULL,
-  `pay_type` varchar(30) NOT NULL,
+  `customer_credit_card_id` varchar(50) DEFAULT NULL,
+  `payment_id` varchar(100) NOT NULL,
+  `intent` varchar(30) NOT NULL,
+  `pay_method` varchar(30) NOT NULL,
   `amount_currency` varchar(5) NOT NULL,
   `details_shipping` float NOT NULL,
   `details_sub_total` float NOT NULL,
@@ -101,6 +170,15 @@ CREATE TABLE `transaction` (
   `date` datetime NOT NULL,
   `transaction_description` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `transaction`
+--
+
+INSERT INTO `transaction` (`id`, `customer_id`, `customer_credit_card_id`, `payment_id`, `intent`, `pay_method`, `amount_currency`, `details_shipping`, `details_sub_total`, `details_tax`, `date`, `transaction_description`) VALUES
+(1, 1, 'CARD-7A4946358R445564AK5ZURZQ', 'PAY-3R758455779757052K5ZVLRY', 'sale', 'credit_card', 'USD', 1, 1, 1, '2016-06-29 10:45:01', 'This is the payment transaction description.'),
+(3, 1, 'CARD-3MV33182SC787214PK52LYRQ', 'PAY-3BM034519L2608749K52L4JI', 'sale', 'credit_card', 'USD', 1, 1, 1, '2016-06-30 12:22:35', 'This is the payment transaction description.'),
+(4, 1, NULL, 'PAY-65N937711C0561943K52MCJQ', 'sale', 'credit_card', 'USD', 1, 1, 1, '2016-06-30 12:35:23', 'This is the payment transaction description.');
 
 --
 -- Indexes for dumped tables
@@ -113,6 +191,18 @@ ALTER TABLE `billing_address`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `billing_agreement`
+--
+ALTER TABLE `billing_agreement`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `billing_plan_agreement`
+--
+ALTER TABLE `billing_plan_agreement`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `customer`
 --
 ALTER TABLE `customer`
@@ -122,6 +212,12 @@ ALTER TABLE `customer`
 -- Indexes for table `customer_credit_card`
 --
 ALTER TABLE `customer_credit_card`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `plan`
+--
+ALTER TABLE `plan`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -140,6 +236,11 @@ ALTER TABLE `transaction`
 ALTER TABLE `billing_address`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
+-- AUTO_INCREMENT for table `billing_agreement`
+--
+ALTER TABLE `billing_agreement`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+--
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
@@ -148,7 +249,17 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `customer_credit_card`
 --
 ALTER TABLE `customer_credit_card`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+--
+-- AUTO_INCREMENT for table `plan`
+--
+ALTER TABLE `plan`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+--
+-- AUTO_INCREMENT for table `transaction`
+--
+ALTER TABLE `transaction`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

@@ -11,13 +11,15 @@ import org.springframework.stereotype.Service;
 import com.main.dto.BillingAgreementDTO;
 import com.main.persistence.entity.BillingAgreement;
 import com.main.persistence.entity.BillingPlan;
+import com.main.persistence.entity.CustomerCreditCard;
 import com.main.persistence.repo.BillingAgreementRepo;
 import com.main.persistence.repo.BillingPlanRepo;
+import com.main.persistence.repo.CustomerCreditCardRepo;
 import com.main.persistence.service.BillingAgreementService;
 import com.main.util.SessionContext;
 import com.paypal.api.payments.Agreement;
-import com.paypal.api.payments.AgreementDetails;
 import com.paypal.api.payments.CreditCard;
+import com.paypal.api.payments.CreditCardToken;
 import com.paypal.api.payments.FundingInstrument;
 import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.PayerInfo;
@@ -33,15 +35,19 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 	@Autowired
 	BillingPlanRepo billingPlanRepo;
 
+	@Autowired
+	CustomerCreditCardRepo customerCreditCardRepo;
+	
 	@Override
 	public Agreement createAgreement(String planId, BillingAgreementDTO billingAgreementDTO) {
+		String payMethod = billingAgreementDTO.getPayerPaymentMethod();
 
 		Agreement agreement = new Agreement();
 
-		agreement.setName(billingAgreementDTO.getAggrementName());
-		agreement.setDescription(billingAgreementDTO.getAggrementDescription());
+		agreement.setName(billingAgreementDTO.getAgreementName());
+		agreement.setDescription(billingAgreementDTO.getAgreementDescription());
 
-		agreement.setStartDate(billingAgreementDTO.getAggrementStartDate()); // effective
+		agreement.setStartDate(billingAgreementDTO.getAgreementStartDate()); // effective
 																				// start
 																				// date
 																				// for
@@ -66,12 +72,22 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 
 		Payer payer = new Payer();
 		payer.setPayerInfo(payerInfo);
-		payer.setPaymentMethod(billingAgreementDTO.getPayerPaymentMethod());
+		payer.setPaymentMethod(payMethod);
 
-		if (billingAgreementDTO.getPayerPaymentMethod().equals("credit_card")
-				|| billingAgreementDTO.getPayerPaymentMethod() == "credit_card") {
+		/*
+		 * If payment type for the agreement is done using credit card, funding
+		 * instrument is added to payer
+		 */
+		if (payMethod.equals("credit_card") || payMethod == "credit_card") {
+			System.out.println("Paying through credit card ");
 			FundingInstrument fundingInstrument = new FundingInstrument();
+//			 fundingInstrument.setCreditCard(getCreditCard());
+			try{
 			fundingInstrument.setCreditCard(getCreditCard());
+			}catch(Exception e){
+				System.out.println("Unale to set funding instrument : " + e.getMessage());
+			}
+//			fundingInstrument.setCreditCardToken(creditCardToken);
 
 			List<FundingInstrument> fundingInstrumentList = new ArrayList<FundingInstrument>();
 			fundingInstrumentList.add(fundingInstrument);
@@ -90,6 +106,12 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 		try {
 			createdAgreement = agreement.create(SessionContext.getAPIContext());
 			System.out.println("Agreement ID : " + createdAgreement.getId());
+
+			if (payMethod.equals("paypal") || payMethod == "paypal") {
+				savePlanAndToken(createdAgreement);
+			} else if (payMethod.equals("credit_card") || payMethod == "credit_card") {
+				saveCardBillingAgreement(createdAgreement, planId);
+			}
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -100,33 +122,52 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		savePlanAndToken(createdAgreement);
+
 		return createdAgreement;
 	}
 
+	private CreditCard getStoredCard() {
+		String creditCardId = customerCreditCardRepo.findOneByCustomerIdAndDefaultCard(SessionContext.getCustomerId(), 1).getCardId();
+		System.out.println("Credit Card ID : " + creditCardId);	
+		
+		 CreditCard creditCard = null;
+		try {
+			creditCard = CreditCard.get(SessionContext.getAPIContext(), creditCardId);
+			System.out.println("Credit card :  " + creditCard);
+		} catch (PayPalRESTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return creditCard;
+	}
+
+	private void saveCardBillingAgreement(Agreement createdAgreement, String planId) {
+
+		checkForPlanAvailability(planId);
+
+		BillingAgreement billingAgreement = new BillingAgreement();
+		billingAgreement.setBillingAgreementId(createdAgreement.getId());
+		billingAgreement.setCustomerId(SessionContext.getCustomerId());
+		billingAgreement.setpId(billingPlanRepo.findOneByPlanId(planId).getId());
+		billingAgreement.setState(createdAgreement.getState());
+
+		billingAgreementRepo.save(billingAgreement);
+	}
+
+	/**
+	 * When an agreement is created, agreement id is not provided. It will be
+	 * saved to the database when the agreement is executed.
+	 * 
+	 * @param createdAgreement
+	 */
 	private void savePlanAndToken(Agreement createdAgreement) {
 		String token = createdAgreement.getToken();
 		String planId = createdAgreement.getPlan().getId();
-		Plan plan;
 
 		BillingAgreement billingAgreement = new BillingAgreement();
-
-		if (billingPlanRepo.findOneByPlanId(planId) == null) {
-			try {
-				plan = Plan.get(SessionContext.getAPIContext(), planId);
-
-				BillingPlan billingPlan = new BillingPlan();
-				billingPlan.setPlanId(planId);
-				billingPlan.setState(plan.getState());
-				
-				billingPlanRepo.save(billingPlan);
-				
-			} catch (PayPalRESTException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
+		checkForPlanAvailability(planId);
 
 		billingAgreement.setpId(billingPlanRepo.findOneByPlanId(planId).getId());
 		billingAgreement.setCustomerId(SessionContext.getCustomerId());
@@ -134,6 +175,33 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 
 		billingAgreementRepo.save(billingAgreement);
 
+	}
+
+	/**
+	 * Check if the plan is not in our record. Plan information will be inserted
+	 * if it is not in the dataabse
+	 * 
+	 * @param planId
+	 */
+	private void checkForPlanAvailability(String planId) {
+		Plan plan;
+		if (billingPlanRepo.findOneByPlanId(planId) == null) {
+			System.out.println("Plan id is null");
+			try {
+				plan = Plan.get(SessionContext.getAPIContext(), planId);
+
+				BillingPlan billingPlan = new BillingPlan();
+				billingPlan.setPlanId(planId);
+				billingPlan.setState(plan.getState());
+
+				billingPlanRepo.save(billingPlan);
+
+			} catch (PayPalRESTException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
 	}
 
 	private CreditCard getCreditCard() {
@@ -153,7 +221,8 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 		Agreement executedAgreement = null;
 		try {
 			executedAgreement = Agreement.execute(SessionContext.getAPIContext(), token);
-			System.out.println("executedAgreement.getToken() Before calling saveBilllingAgreementID : " + executedAgreement.getToken());
+			System.out.println("executedAgreement.getToken() Before calling saveBilllingAgreementID : "
+					+ executedAgreement.getToken());
 
 		} catch (Exception e) {
 			System.out.println("Unable to execute the agreement : " + e.getMessage());
@@ -167,11 +236,19 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 	private void saveBillingAgreementId(Agreement executedAgreement, String token) {
 		System.out.println("(executedAgreement.getToken()) :  " + (executedAgreement.getToken()));
 		BillingAgreement billingAgreement = billingAgreementRepo.findOneByToken(token);
-		
+
 		billingAgreement.setBillingAgreementId(executedAgreement.getId());
+		billingAgreement.setState(executedAgreement.getState());
 
 		billingAgreementRepo.save(billingAgreement);
 
+	}
+
+	@Override
+	public void changeAgreementState(Agreement agreement) {
+		BillingAgreement billingAgreement = billingAgreementRepo.findOneByBillingAgreementId(agreement.getId());
+		billingAgreement.setState(agreement.getState());
+		billingAgreementRepo.save(billingAgreement);
 	}
 
 }

@@ -27,6 +27,9 @@ public class BillingAgreement {
 	@Column(name="token")
 	private String token;
 	
+	@Column(name="state")
+	private String state;
+	
 	public String getBillingAgreementId() {
 		return billingAgreementId;
 	}
@@ -65,6 +68,14 @@ public class BillingAgreement {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
 	}
 	
 }

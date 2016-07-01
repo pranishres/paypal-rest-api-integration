@@ -7,4 +7,6 @@ public interface BillingAgreementService {
 	public Agreement createAgreement(String planId, BillingAgreementDTO billingAgreementDTO);
 	
 	public Agreement executeAgreement(String token);
+	
+	public void changeAgreementState(Agreement agreement);
 }

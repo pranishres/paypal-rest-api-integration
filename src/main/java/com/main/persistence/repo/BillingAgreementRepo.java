@@ -8,4 +8,6 @@ import com.main.persistence.entity.BillingAgreement;
 @Repository
 public interface BillingAgreementRepo extends JpaRepository<BillingAgreement , Integer>{
 	public BillingAgreement findOneByToken(String token);
+	
+	public BillingAgreement findOneByBillingAgreementId(String billingAgreementId);
 }
