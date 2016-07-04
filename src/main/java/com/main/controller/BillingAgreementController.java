@@ -4,9 +4,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.main.dto.BillingAgreementDTO;
+import com.main.persistence.entity.BillingAgreement;
 import com.main.persistence.service.BillingAgreementService;
 import com.main.util.SessionContext;
 import com.paypal.api.payments.Agreement;
@@ -56,11 +60,29 @@ public class BillingAgreementController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{agreementId}")
-	public Agreement getById(@PathVariable("agreementId") String token)
+	public Agreement getById(@PathVariable("agreementId") String agreementID)
 			throws PayPalRESTException, MalformedURLException, UnsupportedEncodingException {
-		Agreement agreement = Agreement.get(SessionContext.getAPIContext(), token);
+		Agreement agreement = Agreement.get(SessionContext.getAPIContext(), agreementID);
 		return agreement;
 
+	}
+	
+	/**
+	 * Listing all agreements customerwise
+	 * @return
+	 */
+	@RequestMapping(method = RequestMethod.GET)
+	public Page<BillingAgreement> getAllAgreements(Pageable pageable){
+		Page<BillingAgreement> pages = billingAgreementService.retriveAllBillingAgreements(pageable);
+		
+/*		HashMap paginationMap = new HashMap();
+		Response <>
+		paginationMap.put("content", pages.getContent());
+		paginationMap.put("size", String.valueOf(pages.getSize()));
+		paginationMap.put("page", String.valueOf(pages.getNumber()));
+		paginationMap.put("totals", String.valueOf(pages.getTotalElements()));*/
+
+		return billingAgreementService.retriveAllBillingAgreements(pageable);
 	}
 
 	@RequestMapping(method=RequestMethod.POST,  value = "/suspend/{agreementId}")

@@ -18,17 +18,25 @@ public class SessionContext {
 		Map<String, String > map = new HashMap<String, String>();
 		map.put("mode", "sandbox");
 
-		/*Facilitator's credentials*/
+		/*testAPI's credentials*/
 		String clientID = "AYDNebhrsuqiUKPU_ab-tCvGGVkzaxw2y4bIJFIl4rMuCWZsPLQqEsBelM3kjlaB0_Nu-UX-LJQw8l0Z";
 		String clientSecret="ENgjkFRgy1yGhal0aobwdF8kLNglkDaDeDItLN-lgQJZV4W1FpNQ27g3FC6TNd1swtroXAdVT390O4C8";
+		
+	
+		/*EK bana's credentials. From panday sir*/
+//		String clientID = "AVcQ9L_ZzbpCdI_ROmffSxhifImE_OSimvYyGiwjp3VsXI91_AkCth5oGRD9cg9dPbQ7tQPpJQk4PtNG";
+//		String clientSecret="EGbOD1cXGAoNhgpnhT4iih8VuP6O2WxbmwITdX3tRe0eZd8Bc3QVQgaOoIXFlp9DLapoj2EwaW2VQklN";
+		
+		/*agreement_test app's credentials*/
+//		String clientID = "AW6OeztOUtEiwLkgjzfjDZQG06wqQdHRGbJDbfbqPvhL32UZk5c9xGEST37O7xiFN2PaIj660H2sTGkB";
+//		String clientSecret = "EHLYy6sG7VsUYkXGkA2SAk8kqz67mwSWB8h6Ir_0X46P3Q7Kyui8qlach3wCxV1-a_FVjwacPZr6be-P";
+		//Plan ID :- 23 | P-9NX2466406107210LWQRI3IY
+		
 		
 		/*Braintree*/
 //		String clientID = "AUs7Rbr2uJhjBwD0hJPWwCpQLiNurOZxjA3ZRzErAXZUgc-Gh51U3RDDb3mJ6VAxt7pmrSuB9Wy4xgz1";
 //		String clientSecret="EFeaXkAmZaXEsNoNC4m03UcRhdm3BGeeo-Mt2X_6phg9LHc_B95xuq7QVHjceo9vxRZvuZkGmUypoRIG";
 		
-		/*Ek-payment*/
-//		String clientID = "Adsrt7W6gH9ohkVi4T-wZ2laykL6rAGouJG__QtwBbfqHMKtfd3r--fsYG1eUNhcP3snqTUEZbRFISga";
-//		String clientSecret="EBsdqxhtk_Lfz2dzFl-HW_puAs0EDx5zQy0tGt7LvJNXzMcOazZ8pcTbLAsvE64Ds4AY5XKlij-Jcvn0";
 		if(accessToken.equals("") || accessToken==""){
 		try {
 			accessToken = new OAuthTokenCredential(clientID, clientSecret,getSDKConfig()).getAccessToken();

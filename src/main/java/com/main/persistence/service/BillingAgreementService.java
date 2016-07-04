@@ -1,6 +1,10 @@
 package com.main.persistence.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.main.dto.BillingAgreementDTO;
+import com.main.persistence.entity.BillingAgreement;
 import com.paypal.api.payments.Agreement;
 
 public interface BillingAgreementService {
@@ -9,4 +13,6 @@ public interface BillingAgreementService {
 	public Agreement executeAgreement(String token);
 	
 	public void changeAgreementState(Agreement agreement);
+	
+	public Page<BillingAgreement> retriveAllBillingAgreements(Pageable pageable);
 }

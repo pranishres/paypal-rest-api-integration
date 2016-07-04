@@ -6,12 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.main.dto.BillingAgreementDTO;
 import com.main.persistence.entity.BillingAgreement;
 import com.main.persistence.entity.BillingPlan;
-import com.main.persistence.entity.CustomerCreditCard;
 import com.main.persistence.repo.BillingAgreementRepo;
 import com.main.persistence.repo.BillingPlanRepo;
 import com.main.persistence.repo.CustomerCreditCardRepo;
@@ -19,7 +20,6 @@ import com.main.persistence.service.BillingAgreementService;
 import com.main.util.SessionContext;
 import com.paypal.api.payments.Agreement;
 import com.paypal.api.payments.CreditCard;
-import com.paypal.api.payments.CreditCardToken;
 import com.paypal.api.payments.FundingInstrument;
 import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.PayerInfo;
@@ -249,6 +249,11 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 		BillingAgreement billingAgreement = billingAgreementRepo.findOneByBillingAgreementId(agreement.getId());
 		billingAgreement.setState(agreement.getState());
 		billingAgreementRepo.save(billingAgreement);
+	}
+
+	@Override
+	public Page<BillingAgreement> retriveAllBillingAgreements(Pageable pageable) {
+		return billingAgreementRepo.findAllByCustomerId(SessionContext.getCustomerId(), pageable);
 	}
 
 }
