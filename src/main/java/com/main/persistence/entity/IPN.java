@@ -43,7 +43,7 @@ public class IPN {
 	private Date createdDate;
 
 	@Column(name = "payment_date")
-	private Date paymentDate;
+	private String paymentDate;
 	
 	@Column(name = "currency_code")
 	private String currencyCode;
@@ -138,11 +138,11 @@ public class IPN {
 		this.createdDate = createdDate;
 	}
 
-	public Date getPaymentDate() {
+	public String getPaymentDate() {
 		return paymentDate;
 	}
 
-	public void setPaymentDate(Date paymentDate) {
+	public void setPaymentDate(String paymentDate) {
 		this.paymentDate = paymentDate;
 	}
 
