@@ -22,7 +22,7 @@ public class IPNListener {
 		boolean isIpnVerified = ipnlistener.validate();
 		String transactionType = ipnlistener.getTransactionType();
 		Map<String, String> map = ipnlistener.getIpnMap();
-
+		
 		System.out.println("******* IPN (name:value) pair : " + map + "  " + "######### TransactionType : "
 				+ transactionType + "  ======== IPN verified : " + isIpnVerified);
 	}

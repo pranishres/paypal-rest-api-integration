@@ -27,8 +27,24 @@ public class BillingAgreement {
 	@Column(name="token")
 	private String token;
 	
-	@Column(name="state")
-	private String state;
+	@Column(name="status")
+	private String status;
+	
+	@Column(name="last_payent_date")
+	private String lastPayentDate;
+	
+	@Column(name="next_billing_date")
+	private String nextBillingDate;
+	
+	@Column(name="amount")
+	private  Float amount;
+	
+	@Column(name="total_paid_amount")
+	private Float totalPaidAmount;
+	
+	@Column(name="outstanding_amount")
+	private Float outstandingAmount;
+	
 	
 	public String getBillingAgreementId() {
 		return billingAgreementId;
@@ -70,12 +86,51 @@ public class BillingAgreement {
 		this.token = token;
 	}
 
-	public String getState() {
-		return state;
+	public String getStatus() {
+		return status;
 	}
 
-	public void setState(String state) {
-		this.state = state;
+	public void setStatus(String state) {
+		this.status = state;
 	}
-	
+
+	public String getlastPayentDate() {
+		return lastPayentDate;
+	}
+
+	public void setlastPayentDate(String lastPayentDate) {
+		this.lastPayentDate = lastPayentDate;
+	}
+
+	public String getNextBillingDate() {
+		return nextBillingDate;
+	}
+
+	public void setNextBillingDate(String nextBillingDate) {
+		this.nextBillingDate = nextBillingDate;
+	}
+
+	public Float getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Float amount) {
+		this.amount = amount;
+	}
+
+	public Float getTotalPaidAmount() {
+		return totalPaidAmount;
+	}
+
+	public void setTotalPaidAmount(Float totalPaidAmount) {
+		this.totalPaidAmount = totalPaidAmount;
+	}
+
+	public Float getOutstandingAmount() {
+		return outstandingAmount;
+	}
+
+	public void setOutstandingAmount(Float outstandingAmount) {
+		this.outstandingAmount = outstandingAmount;
+	}
 }

@@ -19,6 +19,7 @@ import com.main.persistence.repo.CustomerCreditCardRepo;
 import com.main.persistence.service.BillingAgreementService;
 import com.main.util.SessionContext;
 import com.paypal.api.payments.Agreement;
+import com.paypal.api.payments.AgreementDetails;
 import com.paypal.api.payments.CreditCard;
 import com.paypal.api.payments.CreditCardToken;
 import com.paypal.api.payments.FundingInstrument;
@@ -81,6 +82,7 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 			FundingInstrument fundingInstrument = new FundingInstrument();
 //			 fundingInstrument.setCreditCard(getCreditCard());
 			
+			/*Checking if we can get card number from cardId. */
 			try{
 			fundingInstrument.setCreditCard(getCreditCard());
 				String creditCardId = customerCreditCardRepo.findOneByCustomerIdAndDefaultCard(customerId, 1).getCardId();
@@ -92,10 +94,11 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 			}catch(Exception e){
 				System.out.println("Unale to set funding instrument : " + e.getMessage());
 			}
-//			fundingInstrument.setCreditCardToken(creditCardToken);
 
+			
 			List<FundingInstrument> fundingInstrumentList = new ArrayList<FundingInstrument>();
 			fundingInstrumentList.add(fundingInstrument);
+			
 			/* For card payment */
 			payer.setFundingInstruments(fundingInstrumentList);
 		}
@@ -112,6 +115,12 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 			createdAgreement = agreement.create(SessionContext.getAPIContext());
 			System.out.println("Agreement ID : " + createdAgreement.getId());
 
+			/**
+			 * When using paypal for the agreement, first the agreement is created (status = CREATE) 
+			 * and needs to be verified (status = ACTIVE)
+			 * 
+			 */
+			
 			if (payMethod.equals("paypal") || payMethod == "paypal") {
 				savePlanAndToken(createdAgreement);
 			} else if (payMethod.equals("credit_card") || payMethod == "credit_card") {
@@ -150,14 +159,19 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 
 	private void saveCardBillingAgreement(Agreement createdAgreement, String planId) {
 
+		AgreementDetails agreementDetails = createdAgreement.getAgreementDetails();
 		checkForPlanAvailability(planId);
 
 		BillingAgreement billingAgreement = new BillingAgreement();
 		billingAgreement.setBillingAgreementId(createdAgreement.getId());
 		billingAgreement.setCustomerId(SessionContext.getCustomerId());
 		billingAgreement.setpId(billingPlanRepo.findOneByPlanId(planId).getId());
-		billingAgreement.setState(createdAgreement.getState());
-
+		billingAgreement.setStatus(createdAgreement.getState());
+		billingAgreement.setlastPayentDate(agreementDetails.getLastPaymentDate());
+		billingAgreement.setNextBillingDate(agreementDetails.getNextBillingDate());
+		
+//		billingAgreement.setNextBillingDate(createdAgreement.geta);
+		System.out.println("Agreement details after creating agreement : " + createdAgreement.getAgreementDetails());
 		billingAgreementRepo.save(billingAgreement);
 	}
 
@@ -244,7 +258,7 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 		BillingAgreement billingAgreement = billingAgreementRepo.findOneByToken(token);
 
 		billingAgreement.setBillingAgreementId(executedAgreement.getId());
-		billingAgreement.setState(executedAgreement.getState());
+		billingAgreement.setStatus(executedAgreement.getState());
 
 		billingAgreementRepo.save(billingAgreement);
 
@@ -253,7 +267,7 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 	@Override
 	public void changeAgreementState(Agreement agreement) {
 		BillingAgreement billingAgreement = billingAgreementRepo.findOneByBillingAgreementId(agreement.getId());
-		billingAgreement.setState(agreement.getState());
+		billingAgreement.setStatus(agreement.getState());
 		billingAgreementRepo.save(billingAgreement);
 	}
 

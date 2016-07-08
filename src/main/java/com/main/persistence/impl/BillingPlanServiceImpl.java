@@ -72,19 +72,21 @@ public class BillingPlanServiceImpl implements BillingPlanService{
 		Plan createdPlan = null;
 		try{
 		createdPlan = plan.create(SessionContext.getAPIContext());
-		saveBillingPlan(createdPlan);
-		
 		}catch(Exception e){
 			System.out.println("Unable to create plan : "  + e.getMessage());
 		}
+		saveBillingPlan(createdPlan);
 		return createdPlan;
 	}
 
 
 	private void saveBillingPlan(Plan createdPlan) {
+		
 		BillingPlan billingPlan = new BillingPlan();
 		billingPlan.setPlanId(createdPlan.getId());
 		billingPlan.setState(createdPlan.getState());
+		billingPlan.setAmount(Float.parseFloat(createdPlan.getPaymentDefinitions().get(0).getAmount().getValue()));
+		
 		billingPlanRepo.save(billingPlan);
 	}
 
