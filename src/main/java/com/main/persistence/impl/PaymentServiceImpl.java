@@ -45,8 +45,8 @@ public class PaymentServiceImpl implements PaymentService {
 	public Payment createSimplePaypalPayment(String accessToken) {
 
 		RedirectUrls redirectUrls = new RedirectUrls();
-		redirectUrls.setReturnUrl("http://localhost:8080/PaypalRestClient/payment/success");
-		redirectUrls.setCancelUrl("http://localhost:8080/PaypalRestClient/payment/failure");
+		redirectUrls.setReturnUrl("http://localhost:8080/payment/success");
+		redirectUrls.setCancelUrl("http://localhost:8080/payment/failure");
 
 /*		Amount amount = new Amount();
 		amount.setCurrency("USD");
@@ -108,10 +108,10 @@ public class PaymentServiceImpl implements PaymentService {
 			
 			CreditCardToken creditCardToken = new CreditCardToken();
 			creditCardToken.setCreditCardId(creditCardId);
-			System.out.println("Credit card id : " + creditCardToken);
 			fundingInstrument.setCreditCardToken(creditCardToken);
 
-		} else if (paymentType == "direct" || paymentType.equals("direct")) {
+		} 
+		else if (paymentType == "direct" || paymentType.equals("direct")) {
 			CreditCard createdCreditCard = null;
 			try {
 				createdCreditCard = creditCard.create(SessionContext.getAPIContext());
@@ -144,6 +144,7 @@ public class PaymentServiceImpl implements PaymentService {
 			createdPayment = payment.create(SessionContext.getAPIContext());
 			System.out.println("Created payment with id = " + createdPayment.getId() + " and status = "
 					+ createdPayment.getState());
+			System.out.println("Created payment : " + createdPayment);
 			saveDetails(customerId, createdPayment);
 			
 		} catch (PayPalRESTException e) {
@@ -231,7 +232,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private Details getDetails() {
 		Details details = new Details();
 		details.setShipping("1");
-		details.setSubtotal("1");
+		details.setSubtotal("2");
 		details.setTax("1");
 
 		return details;
@@ -241,7 +242,7 @@ public class PaymentServiceImpl implements PaymentService {
 		Amount amount = new Amount();
 		amount.setCurrency("USD");
 		/** Total must be equal to sum of shipping, tax and subtotal. */
-		amount.setTotal("3");
+		amount.setTotal("4");
 		amount.setDetails(getDetails());
 
 		return amount;

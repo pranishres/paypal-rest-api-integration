@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +37,11 @@ public class BillingAgreementController {
 		Date today = new Date();
 		Date tomorrow = new Date(today.getTime() + (1000 * 60 * 60 * 24));
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		
 		return sdf.format(today);
 	}
+	
 
 	@RequestMapping(method = RequestMethod.POST, value = "/{planId}")
 	public Agreement createAgreement(@PathVariable("planId") String planId, @RequestBody BillingAgreementDTO billingAgreementDTO)
@@ -71,18 +73,23 @@ public class BillingAgreementController {
 	 * Listing all agreements customerwise
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.GET)
+/*	@RequestMapping(method = RequestMethod.GET)
 	public Page<BillingAgreement> getAllAgreements(Pageable pageable){
 		Page<BillingAgreement> pages = billingAgreementService.retriveAllBillingAgreements(pageable);
 		
-/*		HashMap paginationMap = new HashMap();
+		HashMap paginationMap = new HashMap();
 		Response <>
 		paginationMap.put("content", pages.getContent());
 		paginationMap.put("size", String.valueOf(pages.getSize()));
 		paginationMap.put("page", String.valueOf(pages.getNumber()));
-		paginationMap.put("totals", String.valueOf(pages.getTotalElements()));*/
+		paginationMap.put("totals", String.valueOf(pages.getTotalElements()));
 
 		return billingAgreementService.retriveAllBillingAgreements(pageable);
+	}*/
+	
+	@RequestMapping(method=RequestMethod.GET)
+	public List<Agreement> getAllAgreements(){
+		return billingAgreementService.retriveAllAgreements();
 	}
 
 	@RequestMapping(method=RequestMethod.POST,  value = "/suspend/{agreementId}")

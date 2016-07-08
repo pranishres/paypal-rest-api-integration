@@ -1,5 +1,7 @@
 package com.main.persistence.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,4 +17,6 @@ public interface BillingAgreementService {
 	public void changeAgreementState(Agreement agreement);
 	
 	public Page<BillingAgreement> retriveAllBillingAgreements(Pageable pageable);
+	
+	public List<Agreement> retriveAllAgreements();
 }

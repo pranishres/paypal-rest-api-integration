@@ -22,6 +22,8 @@ public class SessionContext {
 		String clientID = "AYDNebhrsuqiUKPU_ab-tCvGGVkzaxw2y4bIJFIl4rMuCWZsPLQqEsBelM3kjlaB0_Nu-UX-LJQw8l0Z";
 		String clientSecret="ENgjkFRgy1yGhal0aobwdF8kLNglkDaDeDItLN-lgQJZV4W1FpNQ27g3FC6TNd1swtroXAdVT390O4C8";
 		
+//		String clientID = "AYnFTc-GiQj7woam2EdCMZvasffdjMbK8X7Wa0X1F5LxFxBriAQrlljnXXMIdDWXshV4xkqP7pDsxZEF";
+//		String clientSecret = "EI0iIanE4-bqjDPPRhe_cpKz5W1-qRgX7kl995wiAvkG_zLhLMIhyZiCvVCuWJW4E3iaDj3r2xB8zsiZ";
 	
 		/*EK bana's credentials. From panday sir*/
 //		String clientID = "AVcQ9L_ZzbpCdI_ROmffSxhifImE_OSimvYyGiwjp3VsXI91_AkCth5oGRD9cg9dPbQ7tQPpJQk4PtNG";

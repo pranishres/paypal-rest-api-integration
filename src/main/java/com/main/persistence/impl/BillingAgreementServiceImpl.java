@@ -20,11 +20,13 @@ import com.main.persistence.service.BillingAgreementService;
 import com.main.util.SessionContext;
 import com.paypal.api.payments.Agreement;
 import com.paypal.api.payments.CreditCard;
+import com.paypal.api.payments.CreditCardToken;
 import com.paypal.api.payments.FundingInstrument;
 import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.PayerInfo;
 import com.paypal.api.payments.Plan;
 import com.paypal.api.payments.ShippingAddress;
+import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 
 @Service
@@ -41,18 +43,14 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 	@Override
 	public Agreement createAgreement(String planId, BillingAgreementDTO billingAgreementDTO) {
 		String payMethod = billingAgreementDTO.getPayerPaymentMethod();
+		int customerId = SessionContext.getCustomerId();
 
 		Agreement agreement = new Agreement();
-
 		agreement.setName(billingAgreementDTO.getAgreementName());
 		agreement.setDescription(billingAgreementDTO.getAgreementDescription());
 
-		agreement.setStartDate(billingAgreementDTO.getAgreementStartDate()); // effective
-																				// start
-																				// date
-																				// for
-																				// the
-		// agreement
+		agreement.setStartDate(billingAgreementDTO.getAgreementStartDate()); 
+		
 
 		PayerInfo payerInfo = new PayerInfo();
 		payerInfo.setEmail(billingAgreementDTO.getPayerEmail());
@@ -82,8 +80,15 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 			System.out.println("Paying through credit card ");
 			FundingInstrument fundingInstrument = new FundingInstrument();
 //			 fundingInstrument.setCreditCard(getCreditCard());
+			
 			try{
 			fundingInstrument.setCreditCard(getCreditCard());
+				String creditCardId = customerCreditCardRepo.findOneByCustomerIdAndDefaultCard(customerId, 1).getCardId();
+				
+				CreditCardToken creditCardToken = new CreditCardToken();
+				creditCardToken.setCreditCardId(creditCardId);
+				System.out.println("Credit card id : " + creditCardToken);
+//				fundingInstrument.setCreditCardToken(creditCardToken);
 			}catch(Exception e){
 				System.out.println("Unale to set funding instrument : " + e.getMessage());
 			}
@@ -209,7 +214,7 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 		creditCard.setExpireMonth(12);
 		creditCard.setExpireYear(2021);
 		creditCard.setFirstName("Pranish");
-		creditCard.setLastName("Shrestha Credit Card");
+		creditCard.setLastName("Shrestha");
 		creditCard.setNumber("4032035145786042");
 		creditCard.setType("visa");
 
@@ -221,6 +226,7 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 		Agreement executedAgreement = null;
 		try {
 			executedAgreement = Agreement.execute(SessionContext.getAPIContext(), token);
+		
 			System.out.println("executedAgreement.getToken() Before calling saveBilllingAgreementID : "
 					+ executedAgreement.getToken());
 
@@ -253,7 +259,27 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 
 	@Override
 	public Page<BillingAgreement> retriveAllBillingAgreements(Pageable pageable) {
+		
 		return billingAgreementRepo.findAllByCustomerId(SessionContext.getCustomerId(), pageable);
+	}
+
+	@Override
+	public List<Agreement> retriveAllAgreements() {
+		List<BillingAgreement> billingAgreementList = billingAgreementRepo.findAllByCustomerId(SessionContext.getCustomerId());
+		List<Agreement> agreementList = new ArrayList<>();
+		APIContext apiContext = SessionContext.getAPIContext();
+		
+		for(int i = 0;  i<billingAgreementList.size(); i++){
+			try {
+				Agreement agreement = Agreement.get(apiContext, billingAgreementList.get(i).getBillingAgreementId());
+				agreementList.add(agreement);
+			} catch (PayPalRESTException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		return agreementList;
 	}
 
 }

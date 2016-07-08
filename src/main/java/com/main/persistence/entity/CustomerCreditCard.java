@@ -25,8 +25,8 @@ public class CustomerCreditCard {
 	@Column(name="card_id")
 	private String cardId;
 	
-	@Column(name="payer_id")
-	private String payerId;
+/*	@Column(name="payer_id")
+	private String payerId;*/
 	
 	@Column(name="first_name")
 	private String firstName; 
@@ -81,13 +81,13 @@ public class CustomerCreditCard {
 		this.cardId = cardId;
 	}
 
-	public String getPayerId() {
+/*	public String getPayerId() {
 		return payerId;
 	}
 
 	public void setPayerId(String payerId) {
 		this.payerId = payerId;
-	}
+	}*/
 
 	public String getFirstName() {
 		return firstName;

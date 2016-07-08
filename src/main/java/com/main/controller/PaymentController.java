@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.main.persistence.entity.CustomerCreditCard;
 import com.main.persistence.service.PaymentService;
 import com.main.util.SessionContext;
+import com.paypal.api.payments.Payer;
 import com.paypal.api.payments.Payment;
+import com.paypal.api.payments.PaymentExecution;
 import com.paypal.base.rest.PayPalRESTException;
 
 @RestController
@@ -52,12 +54,29 @@ public class PaymentController{
 		return paymentService.createCreditCardPayment(SessionContext.getAccessToken(), paymentType);
 	}
 	
+	@RequestMapping(value="/paypal/execute", method=RequestMethod.POST, produces="application/JSON")
+	public Payment executePayment(){
+		Payment payment = new Payment();
+		payment.setId("PAY-1JW87731W6492404XK55TKQY");
+		Payer payer = new Payer();
+		
+		PaymentExecution paymentExecution = new PaymentExecution();
+		paymentExecution.setPayerId("4DQ9P2RFZ4SPS");
+		try {
+			payment.execute(SessionContext.getAPIContext(), paymentExecution);
+		} catch (PayPalRESTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	return payment;
+	}
 
 	/** Storing credit card
 	 */
 	@RequestMapping(value="/storeCard", method=RequestMethod.POST)
-	public void storeCreditCard(@RequestBody CustomerCreditCard creditCardDto){
-		paymentService.storeCreditCard(SessionContext.getAccessToken(), creditCardDto);
+	public CustomerCreditCard storeCreditCard(@RequestBody CustomerCreditCard creditCardDto){
+		return paymentService.storeCreditCard(SessionContext.getAccessToken(), creditCardDto);
 	}
 	
 }

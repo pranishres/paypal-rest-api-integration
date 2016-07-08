@@ -1,5 +1,7 @@
 package com.main.persistence.repo;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +16,7 @@ public interface BillingAgreementRepo extends JpaRepository<BillingAgreement , I
 	public BillingAgreement findOneByBillingAgreementId(String billingAgreementId);
 	
 	public Page<BillingAgreement> findAllByCustomerId(int customerId, Pageable pageable);
+	
+	public List<BillingAgreement> findAllByCustomerId(int customerId);
+	
 }
