@@ -18,6 +18,9 @@ public class BillingPlan {
 	@Column(name="state")
 	private String state;
 	
+	@Column(name="amount")
+	private float amount;
+	
 	public int getId() {
 		return id;
 	}
@@ -42,6 +45,12 @@ public class BillingPlan {
 		this.planId = planId;
 	}
 
-	
-	
+	public float getAmount() {
+		return amount;
+	}
+
+	public void setAmount(float amount) {
+		this.amount = amount;
+	}
+
 }
