@@ -40,7 +40,7 @@ public class IPN {
 	private double taxAmount;
 
 	@Column(name = "created_date")
-	private Date createdDate;
+	private String createdDate;
 
 	@Column(name = "payment_date")
 	private String paymentDate;
@@ -130,12 +130,12 @@ public class IPN {
 		this.taxAmount = taxAmount;
 	}
 
-	public Date getCreatedDate() {
+	public String getCreatedDate() {
 		return createdDate;
 	}
 
-	public void setCreatedDate(Date createdDate) {
-		this.createdDate = createdDate;
+	public void setCreatedDate(String string) {
+		this.createdDate = string;
 	}
 
 	public String getPaymentDate() {
@@ -145,5 +145,7 @@ public class IPN {
 	public void setPaymentDate(String paymentDate) {
 		this.paymentDate = paymentDate;
 	}
+
+	
 
 }

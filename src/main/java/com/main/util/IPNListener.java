@@ -4,14 +4,19 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.main.persistence.service.IPNService;
 import com.paypal.ipn.IPNMessage;
 
 @RestController
 
 public class IPNListener {
+	@Autowired
+	private IPNService ipnService;
+
 	@RequestMapping(value = "/myIpnListener")
 	public void listen(HttpServletRequest request) {
 
@@ -23,6 +28,14 @@ public class IPNListener {
 		String transactionType = ipnlistener.getTransactionType();
 		Map<String, String> map = ipnlistener.getIpnMap();
 
+		if (isIpnVerified) {
+			ipnService.saveIPN(map, transactionType);
+		}
+		else{
+			
+			System.out.println("Not a valid IPN Request!");
+		}
+		
 		System.out.println("******* IPN (name:value) pair : " + map + "  " + "######### TransactionType : "
 				+ transactionType + "  ======== IPN verified : " + isIpnVerified);
 	}
