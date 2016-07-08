@@ -49,7 +49,7 @@ public class IPNServiceImpl implements IPNService {
 
 		if (transactionType.equalsIgnoreCase("web_accept")) {
 			ipn.setReferenceId(findValue("receipt_id"));
-		} else {
+		} else if(transactionType.equalsIgnoreCase("recurring_payment")){
 			ipn.setReferenceId(findValue("recurring_payment_id"));
 		}
 		
