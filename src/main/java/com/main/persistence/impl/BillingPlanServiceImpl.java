@@ -75,7 +75,11 @@ public class BillingPlanServiceImpl implements BillingPlanService{
 		}catch(Exception e){
 			System.out.println("Unable to create plan : "  + e.getMessage());
 		}
+		try{
 		saveBillingPlan(createdPlan);
+		}catch(Exception e){
+			System.out.println("Cannot save plan details : " + e.getMessage());
+		}
 		return createdPlan;
 	}
 

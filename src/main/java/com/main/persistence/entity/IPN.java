@@ -47,6 +47,9 @@ public class IPN {
 	
 	@Column(name = "currency_code")
 	private String currencyCode;
+	
+	@Column(name="next_payment_date")
+	private String nextBillingDate;
 
 	
 	
@@ -144,6 +147,14 @@ public class IPN {
 
 	public void setPaymentDate(String paymentDate) {
 		this.paymentDate = paymentDate;
+	}
+
+	public String getNextBillingDate() {
+		return nextBillingDate;
+	}
+
+	public void setNextBillingDate(String nextBillingDate) {
+		this.nextBillingDate = nextBillingDate;
 	}
 
 	
