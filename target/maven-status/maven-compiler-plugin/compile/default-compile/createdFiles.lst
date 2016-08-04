@@ -19,6 +19,7 @@ com/main/persistence/entity/CustomerCreditCard.class
 com/main/persistence/repo/BillingAgreementRepo.class
 com/main/persistence/impl/BillingPlanServiceImpl.class
 com/main/util/SessionContext.class
+com/main/util/Loger.class
 com/main/persistence/repo/BillingPlanRepo.class
 com/main/controller/testController.class
 com/main/persistence/repo/CustomerCreditCardRepo.class

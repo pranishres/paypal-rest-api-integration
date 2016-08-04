@@ -3,6 +3,7 @@
 /home/pranishres/Documents/workspace-sts-3.7.3.RELEASE/PaypalRestClient/src/main/java/com/main/persistence/repo/IPNRepo.java
 /home/pranishres/Documents/workspace-sts-3.7.3.RELEASE/PaypalRestClient/src/main/java/com/main/persistence/repo/TransactionRepo.java
 /home/pranishres/Documents/workspace-sts-3.7.3.RELEASE/PaypalRestClient/src/main/java/com/main/PaypalRestClientApplication.java
+/home/pranishres/Documents/workspace-sts-3.7.3.RELEASE/PaypalRestClient/src/main/java/com/main/util/Loger.java
 /home/pranishres/Documents/workspace-sts-3.7.3.RELEASE/PaypalRestClient/src/main/java/com/main/persistence/service/BillingPlanService.java
 /home/pranishres/Documents/workspace-sts-3.7.3.RELEASE/PaypalRestClient/src/main/java/com/main/util/SessionContext.java
 /home/pranishres/Documents/workspace-sts-3.7.3.RELEASE/PaypalRestClient/src/main/java/com/main/persistence/repo/BillingPlanRepo.java
