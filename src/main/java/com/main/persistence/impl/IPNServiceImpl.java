@@ -31,6 +31,7 @@ public class IPNServiceImpl implements IPNService {
 
 	@Override
 	public IPN saveIPN(Map<String, String> map, String transactionType) {
+		System.out.println("Testing");
 		IPN ipn = new IPN();
 		Loger.startLogger();
 		try{
