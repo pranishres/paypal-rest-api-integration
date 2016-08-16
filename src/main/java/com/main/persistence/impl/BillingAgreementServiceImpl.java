@@ -67,7 +67,7 @@ public class BillingAgreementServiceImpl implements BillingAgreementService {
 		shippingAddress.setPhone(billingAgreementDTO.getShippingPhone());
 		shippingAddress.setLine1(billingAgreementDTO.getShippingLine1());
 
-		payerInfo.setShippingAddress(shippingAddress);
+//		payerInfo.setShippingAddress(shippingAddress);
 
 		Payer payer = new Payer();
 		payer.setPayerInfo(payerInfo);

@@ -25,11 +25,11 @@ com/main/controller/testController.class
 com/main/persistence/repo/CustomerCreditCardRepo.class
 com/main/persistence/service/BillingAgreementService.class
 com/main/controller/BillingAgreementController.class
-com/main/ServletInitializer.class
 com/main/controller/AuthenticationController.class
+com/main/ServletInitializer.class
 com/main/controller/BillingPlanController.class
-com/main/dto/CreditCardDTO.class
 com/main/persistence/repo/CustomerRepo.class
+com/main/dto/CreditCardDTO.class
 com/main/PaypalRestClientApplication.class
 com/main/persistence/entity/IPN.class
 com/main/persistence/service/IPNService.class

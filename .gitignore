@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 /target/*
 /home/pranishres/Documents/workspace-sts-3.7.3.RELEASE/PaypalRestClient/target/PaypalRestClient-0.0.1-SNAPSHOT.war
 /target/
+=======
+target/
+.classpath
+
+>>>>>>> c294e4f30f0373dd7a1ee111d498c1746b296c89

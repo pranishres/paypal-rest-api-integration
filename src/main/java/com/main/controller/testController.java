@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.main.util.SessionContext;
+import com.paypal.api.payments.Sale;
+import com.paypal.base.rest.PayPalRESTException;
+
 @RestController
 public class testController {
 
@@ -19,7 +23,7 @@ public class testController {
 		map.put("a", "Apple");
 		map.put("b", "Ball");
 		map.put("c", "Cat");
-		map.put("D", "Dog");
+		map.put("d", "Dog");
 		this.ipnMap = map;
 
 		return findValue(pv);
@@ -28,5 +32,18 @@ public class testController {
 	private String findValue(String key) {
 		String value = (String) this.ipnMap.get(key);
 		return value;
+	}
+
+	/*
+	 * Sales Details for retrieving payment id
+	 */
+	@RequestMapping("/transactionDetail/{str}")
+	public Sale transactionTest(@PathVariable("str") String saleId) throws PayPalRESTException {
+
+		Sale sale = new Sale();
+		sale = Sale.get(SessionContext.getAPIContext(), saleId);
+		return sale;
+		// create(SessionContext.getAPIContext());
+
 	}
 }
